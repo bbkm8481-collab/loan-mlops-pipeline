@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: loan-mlops-api
+spec:
+  replicas: 2 
+  selector:
+    matchLabels:
+      app: loan-mlops-api
+  template:
+    metadata:
+      labels:
+        app: loan-mlops-api
+    spec:
+      containers:
+      - name: loan-mlops-api
+        image: asia-south1-docker.pkg.dev/loan-mlops-gke/mlops-repo/loan-mlops-api:v1
+        ports:
+        - containerPort: 8000
+        env:
+        - name: DB_USER
+          value: "postgres"
+        - name: DB_PASSWORD
+          value: "postgres"
+        - name: DB_HOST
+          value: "localhost"
+        - name: DB_PORT
+          value: "5432"
+        - name: DB_NAME
+          value: "postgres"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: loan-mlops-service
+spec:
+  type: LoadBalancer 
+  selector:
+    app: loan-mlops-api
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 8000
