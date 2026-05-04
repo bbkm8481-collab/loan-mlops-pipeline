@@ -1,13 +1,15 @@
 pipeline {
     agent any
-    
-    environment {
+   environment {
+        // Injecting Mac paths so Jenkins can find docker and gcloud
+        PATH = "/Users/bhaskar/google-cloud-sdk/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:${env.PATH}"
+        
         PROJECT_ID = 'loan-mlops-gke'
         REGION = 'asia-south1'
         CLUSTER_NAME = 'mlops-prod-cluster'
         REPO_NAME = 'mlops-repo'
         IMAGE_NAME = "asia-south1-docker.pkg.dev/${PROJECT_ID}/${REPO_NAME}/loan-mlops-api:${env.BUILD_ID}"
-    }
+    } 
     
     stages {
         stage('Checkout Code') {
