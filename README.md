@@ -35,4 +35,55 @@ Create a virtual environment and install dependencies:
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
+```
 
+Set up your `.env` file for local PostgreSQL access:
+```env
+DB_USER=postgres
+DB_PASSWORD=yourpassword
+DB_HOST=localhost # Change to host.docker.internal when using Docker on Mac
+DB_PORT=5432
+DB_NAME=postgres
+```
+
+Run the FastAPI server locally:
+```bash
+uvicorn main:app --reload
+```
+
+### 2. Docker & GCP Authentication (Mac Apple Silicon Bypass)
+If using Docker Desktop on a Mac, standard `gcloud` authentication can fail. Use this token bypass method to log in to the Artifact Registry:
+```bash
+# Get token and feed directly to Docker
+gcloud auth print-access-token | docker login -u oauth2accesstoken --password-stdin [https://asia-south1-docker.pkg.dev](https://asia-south1-docker.pkg.dev)
+```
+
+### 3. Deploying to Kubernetes (Manual)
+If you need to deploy manually without Jenkins, connect to the cluster and apply the manifest:
+```bash
+# Get cluster credentials
+gcloud container clusters get-credentials mlops-prod-cluster --region asia-south1 --project loan-mlops-gke
+
+# Apply deployment and service
+kubectl apply -f deployment.yaml
+
+# Watch for your public LoadBalancer IP
+kubectl get services
+```
+
+### 4. Jenkins CI/CD Configuration Notes
+If Jenkins is running locally on a Mac, it runs in a headless environment and will not read your `~/.zshrc` file. You **must** inject your system paths directly into the `Jenkinsfile` environment block so Jenkins can find `docker` and `gcloud`:
+```groovy
+environment {
+    PATH = "/Users/YOUR_USER/google-cloud-sdk/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:${env.PATH}"
+}
+```
+
+---
+
+## 🚨 Troubleshooting Cheat Sheet
+* **`zsh: command not found: gcloud`**: Run `source ~/google-cloud-sdk/path.zsh.inc`.
+* **Docker Unauthenticated Error**: Run the `gcloud auth print-access-token` bypass command above.
+* **Kubernetes Auth Plugin Error**: Run `gcloud components install gke-gcloud-auth-plugin`.
+* **Git accidentally tracked massive folders (`venv`)**: Create a `.gitignore`, then run `git rm -r --cached .` and re-add the files.
+```
