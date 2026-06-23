@@ -1,3 +1,6 @@
+# End-to-End MLOps Pipeline
+
+![MLOps Architecture](MLOpsEngineering.png)
 # 🚀 End-to-End MLOps Pipeline: Loan Risk Prediction
 
 An enterprise-grade, fully automated Machine Learning Operations (MLOps) pipeline. This project trains a predictive model, containerizes the serving API, and deploys it to a production Kubernetes cluster via a Jenkins CI/CD pipeline.
